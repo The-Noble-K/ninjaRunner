@@ -5,6 +5,26 @@ const config = {
   parent: "phaser-example",
   width: 1200,
   height: 640,
+  autoCenter: 1,
+  backgroundColor: 'black',
+  pixelArt: true,
+  roundPixels: true,
+  audio: {
+    disableWebAudio: true,
+    noAudio: false
+  },
+  fps: {
+    target: 2,
+    min: 2,
+    forceSetTimeOut: true
+  },
+  physics: {
+    default: 'arcade',
+    arcade: {
+        gravity: {y: 500},
+        debug: true
+    }
+  },
   scene: {
     preload: preload,
     create: create,
@@ -16,11 +36,11 @@ const game = new Phaser.Game(config);
 
 function preload() {
 
-  this.load.tilemapTiledJSON('tilemap', 'assets/tilemap.json');
-  this.load.image('tileset', 'assets/tileset.png');
-  this.load.image('bg', 'assets/background.png');
-  this.load.image('fg', 'assets/foreground.png');
-  this.load.atlas('masterNinja', 'assets/Atlas/masterNinja.png', 'assets/Atlas/masterNinja.json');
+  this.load.tilemapTiledJSON('tilemap', 'src/assets/tilemap.json');
+  this.load.image('tileset', 'src/assets/tileset.png');
+  this.load.image('bg', 'src/assets/background.png');
+  this.load.image('fg', 'src/assets/foreground.png');
+  this.load.atlas('masterNinja', 'src/assets/Atlas/masterNinja.png', 'src/assets/Atlas/masterNinja.json');
 
 }
 
@@ -35,19 +55,41 @@ function create() {
   var tileset = map.addTilesetImage('tileset');
   var layer = map.createStaticLayer(0, tileset, 0, 0)
   layer.setCollisionByExclusion([-1]);
-
   //Set Boundaries
   this.physics.world.bounds.width = layer.width;
   this.physics.world.bounds.height = layer.height;
 
   //Instantiate Player
-  var player = this.add.sprite(16, 576, 'masterNinja', 'assets/Atlas/images/ninja40.png');
+  var player = this.physics.add.sprite(16, 576, 'masterNinja', 'src/assets/Atlas/images/ninja40.png');
   console.log(player);
+  player.setCollideWorldBounds(true);
+  player.anims.play('idle');
 
    //Add Player Animations
-  var idleFrames = this.anims.generateFrameNames('masterNinja', { start: 40, end: 43, zeroPad: 2, prefix: 'images/ninja', suffix: '.png' });
-  this.anims.create({ key: 'idle', frames: idleFrames, frameRate: 10, repeat: -1 });
-  player.anims.play('idle');
+  this.anims.create({
+    key: 'idle',
+    frames: this.anims.generateFrameNumbers('masterNinja', { prefix: 'ninja', suffix: '.png', start: 40, end: 43 }),
+    frameRate: 10,
+    repeat: -1
+  });
+  this.anims.create({
+    key: 'run',
+    frames: this.anims.generateFrameNumbers('masterNinja', { prefix: 'ninja', suffix: '.png', start: 1, end: 3 }),
+    frameRate: 10,
+    repeat: -1
+  });
+  this.anims.create({
+    key: 'jump',
+    frames: this.anims.generateFrameNumbers('masterNinja', { prefix: 'ninja', suffix: '.png', start: 8, end: 15 }),
+    frameRate: 10,
+    repeat: -1
+  });
+  this.anims.create({
+    key: 'death',
+    frames: this.anims.generateFrameNames('death', { prefix: 'ninja', suffix: '.png', start: 4, end: 7 }),
+    frameRate: 10,
+    repeat: -1
+  });
 
   this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
   this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
